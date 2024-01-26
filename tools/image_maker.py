@@ -41,12 +41,12 @@ def image_maker(data, path):
             plt.annotate(data['teacher']+'T', (x+200, y+110), ha = 'center', va = 'center', fontproperties=prop, color='white', size=20)
 
     for index, day in enumerate(["월", "화", "수", "목", "금"]):
-        ax.add_patch(plt.Rectangle((index*400, 2800),400,200,fill=False, edgecolor='white', linewidth=5))
-        plt.annotate(day, (index*400+200, 2900), ha = 'center', va = 'center', fontproperties=prop, color='white', size=30)
+        ax.add_patch(plt.Rectangle((index*400, 2800),400,150,fill=False, edgecolor='white', linewidth=5))
+        plt.annotate(day, (index*400+200, 2875), ha = 'center', va = 'center', fontproperties=prop, color='white', size=30)
     ax.set_xlim(0, 2010)
-    ax.set_ylim(0, 350 * 8 + 200)
+    ax.set_ylim(0, 350 * 8 + 150)
     ax.set_aspect('equal')
     ax.axis('off')
-    fig.set_size_inches(20.1, 30)
+    fig.set_size_inches(20.1, 28.5)
     fig.savefig(f'{path}', dpi=200)
     plt.close(fig)
