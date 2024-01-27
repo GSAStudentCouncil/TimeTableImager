@@ -153,5 +153,5 @@ dmypy.json
 cython_debug/
 
 .idea
-data
+data/output
 test_setting.json
