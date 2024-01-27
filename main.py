@@ -3,7 +3,7 @@ import json
 from tools.template_parser import Template
 from openpyxl import load_workbook
 from tools.teacher_parser import TeacherInfo
-from tools.image_maker import image_maker
+from tools.image_maker import image_maker, make_dark_image
 import os
 from tqdm import tqdm
 
@@ -56,6 +56,7 @@ if __name__ == '__main__':
     if not os.path.exists(setting['Output'] if 'Output' in setting else args.output):
         os.mkdir(setting['Output'] if 'Output' in setting else args.output)
 
-    for i in tqdm(table_data):
+    for i in tqdm(table_data[:2]):
         name = i['name']['name']
         image_maker(i, f'{setting["Output"] if "Output" in setting else args.output}/{name if name != None else args.name}.{setting["Format"] if "Format" in setting else args.format}')
+        make_dark_image(i, f'{setting["Output"] if "Output" in setting else args.output}/{name if name != None else args.name}_dark.{setting["Format"] if "Format" in setting else args.format}')

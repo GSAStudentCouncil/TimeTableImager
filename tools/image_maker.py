@@ -1,9 +1,9 @@
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
+from PIL import Image, ImageDraw, ImageFont
 
 def text_resize(text):
     if text is None:
         return ''
+    text = text.replace('실험', ' 실험')
     text = text.replace('(2)', '')
     text = text.replace('Ⅰ', '')
     text = text.replace('Ⅱ', '')
@@ -24,29 +24,104 @@ def text_resize(text):
     if result.startswith('\n'):
         result = result[1:]
     return result + '\n' +class_num
-def image_maker(data, path):
-    plt.style.use('dark_background')
-    prop = fm.FontProperties(fname='./tools/GmarketSansMedium.otf')
-    rect = []
-    for index, day in enumerate(['mon', 'tue', 'wed', 'thu', 'fri']):
-        for i in range(1,9):
-            rect.append((index*400, 350 * (8-i), 400, 350, data[f'{day}_{i}']))
-    fig, ax = plt.subplots()
-    for (x,y,w,h,data) in rect:
-        ax.add_patch(plt.Rectangle((x,y),w,h,fill=False, edgecolor='white', linewidth=5))
-        plt.annotate(text_resize(data['name']), (x+200, y+320), ha = 'center', va = 'top', fontproperties=prop, color='white', size=25)
-        if "location" in data and data['location'] != None:
-            plt.annotate(data['location'], (x+200, y+50), ha = 'center', va = 'center', fontproperties=prop, color='white', size=20)
-        if "teacher" in data and data['teacher'] != None:
-            plt.annotate(data['teacher']+'T', (x+200, y+110), ha = 'center', va = 'center', fontproperties=prop, color='white', size=20)
 
-    for index, day in enumerate(["월", "화", "수", "목", "금"]):
-        ax.add_patch(plt.Rectangle((index*400, 2800),400,150,fill=False, edgecolor='white', linewidth=5))
-        plt.annotate(day, (index*400+200, 2875), ha = 'center', va = 'center', fontproperties=prop, color='white', size=30)
-    ax.set_xlim(0, 2010)
-    ax.set_ylim(0, 350 * 8 + 150)
-    ax.set_aspect('equal')
-    ax.axis('off')
-    fig.set_size_inches(20.1, 28.5)
-    fig.savefig(f'{path}', dpi=200)
-    plt.close(fig)
+def get_font(size):
+    return ImageFont.truetype("./tools/GmarketSansMedium.otf", size)
+
+def get_title_font(size):
+    return ImageFont.truetype("./tools/Jalnan2.otf", size)
+
+def image_maker(data, path):
+    image = Image.new('RGB', (2000, 3000), "white")
+    draw = ImageDraw.Draw(image)
+    inside_color = ['#FFCCCC', '#FFE6CC', '#FCFCCF', '#CCFFCC', '#DDF1FF', '#CCCCFF', '#FFCCFF', '#D7A060']
+    outside_color = ['#FF8080', '#FFBF80', '#F8F887', '#80FF80', '#80DDFF', '#8080FF', '#FF80FF', '#AC8250']
+    subjects = []
+    colors = []
+
+    rects = []
+    days = ['mon', 'tue', 'wed', 'thu', 'fri']
+    times = ['1', '2', '3', '4', '5', '6', '7', '8']
+
+    for day_index, day in enumerate(days):
+        for time_index, time in enumerate(times):
+            if data[f'{day}_{time}']['name'] == None:
+                continue
+            elif time_index > 0 and data[f'{day}_{time}']['name'] == data[f'{day}_{times[time_index-1]}']['name']:
+                continue
+            else:
+                if data[f'{day}_{time}']['name'] not in subjects:
+                    subjects.append(data[f'{day}_{time}']['name'])
+                    colors.append([inside_color[(len(subjects)-1)%8], outside_color[(len(subjects)-1)%8]])
+                start_x = day_index * 400 + 10
+                start_y = time_index * 350 + 210
+                end_x = start_x + 380
+                if time_index < 7 and data[f'{day}_{time}']['name'] == data[f'{day}_{times[time_index+1]}']['name'] and data[f'{day}_{time}']['teacher'] == data[f'{day}_{times[time_index+1]}']['teacher'] and data[f'{day}_{time}']['location'] == data[f'{day}_{times[time_index+1]}']['location']:
+                    end_y = start_y + 680
+                else:
+                    end_y = start_y + 330
+                rects.append((start_x, start_y, end_x, end_y, colors[subjects.index(data[f'{day}_{time}']['name'])], data[f'{day}_{time}']['name'], data[f'{day}_{time}']['teacher'], data[f'{day}_{time}']['location']))
+
+    for (start_x, start_y, end_x, end_y, color, name, teacher, location) in rects:
+        draw.rounded_rectangle((start_x, start_y, end_x, end_y), fill=color[0], outline=color[1], radius=40, width=10)
+        draw.text((start_x+15, start_y+20), text_resize(name), font=get_font(55), fill='black')
+        draw.text((start_x+15, start_y+200), teacher if teacher is not None else '', font=get_font(40), fill='black')
+        draw.text((start_x+15, start_y+250), location if location is not None else '', font=get_font(40), fill='black')
+
+    days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+    draw.line((0, 190, 2000, 200), fill='black', width=10)
+    for day_index, day in enumerate(days):
+        #draw.rounded_rectangle((day_index*400+10, 10, day_index*400+390, 190), fill='#9f9f9f', outline='#7f7f7f', radius=40, width=10)
+        draw.text((day_index*400+20, 80), day, font=get_font(100), fill='black')
+    image.save(path)
+
+def make_dark_image(data, path):
+    image = Image.new('RGB', (2000, 3000), "black")
+    draw = ImageDraw.Draw(image)
+    inside_color = ['black', 'black', 'black', 'black', 'black', 'black', 'black', 'black']
+    outside_color = ['white', 'white', 'white', 'white', 'white', 'white', 'white', 'white']
+    subjects = []
+    colors = []
+
+    rects = []
+    days = ['mon', 'tue', 'wed', 'thu', 'fri']
+    times = ['1', '2', '3', '4', '5', '6', '7', '8']
+
+    for day_index, day in enumerate(days):
+        for time_index, time in enumerate(times):
+            if data[f'{day}_{time}']['name'] == None:
+                continue
+            elif time_index > 0 and data[f'{day}_{time}']['name'] == data[f'{day}_{times[time_index - 1]}']['name']:
+                continue
+            else:
+                if data[f'{day}_{time}']['name'] not in subjects:
+                    subjects.append(data[f'{day}_{time}']['name'])
+                    colors.append([inside_color[(len(subjects) - 1) % 8], outside_color[(len(subjects) - 1) % 8]])
+                start_x = day_index * 400 + 10
+                start_y = time_index * 350 + 210
+                end_x = start_x + 380
+                if time_index < 7 and data[f'{day}_{time}']['name'] == data[f'{day}_{times[time_index + 1]}'][
+                    'name'] and data[f'{day}_{time}']['teacher'] == data[f'{day}_{times[time_index + 1]}'][
+                    'teacher'] and data[f'{day}_{time}']['location'] == data[f'{day}_{times[time_index + 1]}'][
+                    'location']:
+                    end_y = start_y + 680
+                else:
+                    end_y = start_y + 330
+                rects.append((start_x, start_y, end_x, end_y, colors[subjects.index(data[f'{day}_{time}']['name'])],
+                              data[f'{day}_{time}']['name'], data[f'{day}_{time}']['teacher'],
+                              data[f'{day}_{time}']['location']))
+
+    for (start_x, start_y, end_x, end_y, color, name, teacher, location) in rects:
+        draw.rounded_rectangle((start_x, start_y, end_x, end_y), fill=color[0], outline=color[1], radius=40, width=5)
+        draw.text((start_x + 15, start_y + 20), text_resize(name), font=get_font(55), fill='white')
+        draw.text((start_x + 15, start_y + 200), teacher if teacher is not None else '', font=get_font(40),
+                  fill='white')
+        draw.text((start_x + 15, start_y + 250), location if location is not None else '', font=get_font(40),
+                  fill='white')
+
+    days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+    draw.line((0, 190, 2000, 200), fill='white', width=10)
+    for day_index, day in enumerate(days):
+        # draw.rounded_rectangle((day_index*400+10, 10, day_index*400+390, 190), fill='#9f9f9f', outline='#7f7f7f', radius=40, width=10)
+        draw.text((day_index * 400 + 20, 80), day, font=get_font(100), fill='white')
+    image.save(path)
