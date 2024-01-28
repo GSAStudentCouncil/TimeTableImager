@@ -47,7 +47,7 @@ def image_maker(data, path):
         for time_index, time in enumerate(times):
             if data[f'{day}_{time}']['name'] == None:
                 continue
-            elif time_index > 0 and data[f'{day}_{time}']['name'] == data[f'{day}_{times[time_index-1]}']['name']:
+            elif time_index > 0 and data[f'{day}_{time}']['name'] == data[f'{day}_{times[time_index-1]}']['name'] and data[f'{day}_{time}']['teacher'] == data[f'{day}_{times[time_index-1]}']['teacher'] and data[f'{day}_{time}']['location'] == data[f'{day}_{times[time_index-1]}']['location']:
                 continue
             else:
                 if data[f'{day}_{time}']['name'] not in subjects:
@@ -65,7 +65,7 @@ def image_maker(data, path):
     for (start_x, start_y, end_x, end_y, color, name, teacher, location) in rects:
         draw.rounded_rectangle((start_x, start_y, end_x, end_y), fill=color[0], outline=color[1], radius=40, width=10)
         draw.text((start_x+15, start_y+20), text_resize(name), font=get_font(55), fill='black')
-        draw.text((start_x+15, start_y+200), teacher if teacher is not None else '', font=get_font(40), fill='black')
+        draw.text((start_x+15, start_y+200), teacher + 'T' if teacher is not None else '', font=get_font(40), fill='black')
         draw.text((start_x+15, start_y+250), location if location is not None else '', font=get_font(40), fill='black')
 
     days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
@@ -114,7 +114,7 @@ def make_dark_image(data, path):
     for (start_x, start_y, end_x, end_y, color, name, teacher, location) in rects:
         draw.rounded_rectangle((start_x, start_y, end_x, end_y), fill=color[0], outline=color[1], radius=40, width=5)
         draw.text((start_x + 15, start_y + 20), text_resize(name), font=get_font(55), fill='white')
-        draw.text((start_x + 15, start_y + 200), teacher if teacher is not None else '', font=get_font(40),
+        draw.text((start_x + 15, start_y + 200), teacher + 'T' if teacher is not None else '', font=get_font(40),
                   fill='white')
         draw.text((start_x + 15, start_y + 250), location if location is not None else '', font=get_font(40),
                   fill='white')

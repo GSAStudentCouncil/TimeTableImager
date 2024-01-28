@@ -155,3 +155,4 @@ cython_debug/
 .idea
 data/output
 test_setting.json
+data

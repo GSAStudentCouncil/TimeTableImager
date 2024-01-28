@@ -15,7 +15,7 @@ if __name__ == '__main__':
     )
 
     parser.add_argument("-s", "--setting", type=str, default="setting.json", help="setting file path")
-    parser.add_argument("-i", "--input", type=str, default="table.xlsx", help="input xlsx file path")
+    parser.add_argument("-td", "--tabledata", type=str, default="table.xlsx", help="input xlsx file path")
     parser.add_argument("-sh", "--sheet", type=str, default="Sheet1", help="sheet name of xlsx file")
     parser.add_argument("-o", "--output", type=str, default="output", help="output directory path")
     parser.add_argument("-n", "--name", type=str, default="<auto>", help="output image name")
